@@ -21,9 +21,20 @@ const candidates = {
   }
 };
 
+
+/* =========================
+   ESTADO DA VOTAÇÃO
+========================= */
+
 let typedNumber = "";
 let selectedCandidate = null;
 let votingFinished = false;
+let voteType = "none";
+
+
+/* =========================
+   ELEMENTOS DO HTML
+========================= */
 
 const bootScreen = document.getElementById("bootScreen");
 const app = document.getElementById("app");
@@ -53,6 +64,10 @@ const confirmBtn = document.getElementById("confirmBtn");
 const settingsBtn = document.getElementById("settingsBtn");
 
 
+/* =========================
+   INICIAR VOTAÇÃO
+========================= */
+
 function startVoting() {
   bootScreen.hidden = true;
   app.hidden = false;
@@ -64,10 +79,15 @@ function startVoting() {
 }
 
 
+/* =========================
+   REINICIAR VOTAÇÃO
+========================= */
+
 function resetVoting() {
   typedNumber = "";
   selectedCandidate = null;
   votingFinished = false;
+  voteType = "none";
 
   updateNumberDisplay();
 
@@ -95,6 +115,10 @@ function resetVoting() {
 }
 
 
+/* =========================
+   MOSTRAR NÚMERO DIGITADO
+========================= */
+
 function updateNumberDisplay() {
   if (typedNumber.length === 0) {
     numberDisplay.innerHTML =
@@ -107,6 +131,10 @@ function updateNumberDisplay() {
 }
 
 
+/* =========================
+   DIGITAR NÚMERO
+========================= */
+
 function typeNumber(number) {
   if (votingFinished) {
     return;
@@ -116,26 +144,35 @@ function typeNumber(number) {
     return;
   }
 
+  voteType = "candidate";
   typedNumber += number;
 
   updateNumberDisplay();
 
-  if (typedNumber.length === 2) {
-    showCandidate();
-  } else {
+  if (typedNumber.length === 1) {
     stageMessage.textContent =
       "Digite o segundo número";
 
     voteStatus.textContent =
       "Número incompleto";
+
+    return;
   }
+
+  showCandidate();
 }
 
+
+/* =========================
+   MOSTRAR CANDIDATO
+========================= */
 
 function showCandidate() {
   selectedCandidate = candidates[typedNumber];
 
   if (!selectedCandidate) {
+    voteType = "null";
+
     stageMessage.textContent =
       "Número inválido";
 
@@ -157,6 +194,8 @@ function showCandidate() {
     return;
   }
 
+  voteType = "candidate";
+
   stageMessage.textContent =
     "Confira os dados do candidato";
 
@@ -177,6 +216,10 @@ function showCandidate() {
 }
 
 
+/* =========================
+   CORRIGIR NÚMERO
+========================= */
+
 function clearNumber() {
   if (votingFinished) {
     return;
@@ -184,6 +227,7 @@ function clearNumber() {
 
   typedNumber = "";
   selectedCandidate = null;
+  voteType = "none";
 
   updateNumberDisplay();
 
@@ -207,6 +251,10 @@ function clearNumber() {
 }
 
 
+/* =========================
+   VOTO EM BRANCO
+========================= */
+
 function voteBlank() {
   if (votingFinished) {
     return;
@@ -214,6 +262,7 @@ function voteBlank() {
 
   typedNumber = "";
   selectedCandidate = null;
+  voteType = "blank";
 
   updateNumberDisplay();
 
@@ -237,18 +286,38 @@ function voteBlank() {
 }
 
 
+/* =========================
+   ABRIR CONFIRMAÇÃO
+========================= */
+
 function openConfirmation() {
   if (votingFinished) {
     return;
   }
 
-  if (typedNumber.length === 0) {
+  if (voteType === "none") {
     alert("Digite um número ou escolha BRANCO.");
     return;
   }
 
-  if (typedNumber.length < 2) {
+  if (voteType === "candidate" && typedNumber.length < 2) {
     alert("Digite os dois números do candidato.");
+    return;
+  }
+
+  if (voteType === "blank") {
+    dialogCandidate.textContent =
+      "VOTO EM BRANCO";
+
+    confirmDialog.showModal();
+    return;
+  }
+
+  if (voteType === "null") {
+    dialogCandidate.textContent =
+      "VOTO NULO — número " + typedNumber;
+
+    confirmDialog.showModal();
     return;
   }
 
@@ -257,17 +326,21 @@ function openConfirmation() {
       selectedCandidate.name +
       " — número " +
       selectedCandidate.number;
-  } else {
-    dialogCandidate.textContent =
-      "VOTO NULO — número " +
-      typedNumber;
-  }
 
-  confirmDialog.showModal();
+    confirmDialog.showModal();
+  }
 }
 
 
+/* =========================
+   CONFIRMAR VOTO
+========================= */
+
 function confirmVote() {
+  if (!confirmDialog.open) {
+    return;
+  }
+
   confirmDialog.close();
 
   votingFinished = true;
@@ -293,42 +366,114 @@ function confirmVote() {
   enterBtn.disabled = true;
   blankBtn.disabled = true;
   clearBtn.disabled = true;
+
+  const keys = keypad.querySelectorAll("button");
+
+  keys.forEach(function(key) {
+    key.disabled = true;
+  });
 }
 
 
-startBtn.addEventListener("click", startVoting);
+/* =========================
+   EVENTO DO BOTÃO INICIAR
+========================= */
 
-keypad.addEventListener("click", function(event) {
-  const button = event.target.closest("[data-number]");
+if (startBtn) {
+  startBtn.addEventListener("click", startVoting);
+}
 
-  if (!button) {
-    return;
-  }
 
-  typeNumber(button.dataset.number);
-});
+/* =========================
+   EVENTO DO TECLADO
+========================= */
 
-clearBtn.addEventListener("click", clearNumber);
+if (keypad) {
+  keypad.addEventListener("click", function(event) {
+    const button = event.target.closest("[data-number]");
 
-blankBtn.addEventListener("click", voteBlank);
+    if (!button || button.disabled) {
+      return;
+    }
 
-enterBtn.addEventListener("click", openConfirmation);
+    typeNumber(button.dataset.number);
+  });
+}
 
-cancelBtn.addEventListener("click", function() {
-  confirmDialog.close();
-});
 
-confirmBtn.addEventListener("click", confirmVote);
+/* =========================
+   BOTÃO CORRIGE
+========================= */
 
-restartBtn.addEventListener("click", function() {
-  resetVoting();
-});
+if (clearBtn) {
+  clearBtn.addEventListener("click", clearNumber);
+}
 
-settingsBtn.addEventListener("click", function() {
-  alert(
-    "Simulador de Votação\n\n" +
-    "Use o teclado para digitar o número.\n" +
-    "CONFIRMA registra o voto.\n" +
-    "CORRIGE apaga o número."
-  );
-});
+
+/* =========================
+   BOTÃO BRANCO
+========================= */
+
+if (blankBtn) {
+  blankBtn.addEventListener("click", voteBlank);
+}
+
+
+/* =========================
+   BOTÃO CONFIRMA
+========================= */
+
+if (enterBtn) {
+  enterBtn.addEventListener("click", openConfirmation);
+}
+
+
+/* =========================
+   CANCELAR CONFIRMAÇÃO
+========================= */
+
+if (cancelBtn) {
+  cancelBtn.addEventListener("click", function() {
+    confirmDialog.close();
+  });
+}
+
+
+/* =========================
+   CONFIRMAR DENTRO DA JANELA
+========================= */
+
+if (confirmBtn) {
+  confirmBtn.addEventListener("click", confirmVote);
+}
+
+
+/* =========================
+   BOTÃO REINICIAR
+========================= */
+
+if (restartBtn) {
+  restartBtn.addEventListener("click", function() {
+    resetVoting();
+
+    app.hidden = true;
+    bootScreen.hidden = false;
+  });
+}
+
+
+/* =========================
+   BOTÃO CONFIGURAÇÕES
+========================= */
+
+if (settingsBtn) {
+  settingsBtn.addEventListener("click", function() {
+    alert(
+      "Simulador de Votação\n\n" +
+      "Digite o número usando o teclado.\n" +
+      "CONFIRMA registra o voto.\n" +
+      "CORRIGE apaga o número.\n" +
+      "BRANCO permite votar em branco."
+    );
+  });
+}
