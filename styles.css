@@ -499,3 +499,285 @@ button:focus-visible {
     font-size: 13px;
   }
 }
+
+/* ===== VISUAL DA URNA ORIGINAL ===== */
+
+body {
+  background:
+    radial-gradient(circle at 50% 35%, #344b80 0%, #101d4c 45%, #071438 100%);
+}
+
+.boot-screen {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 30%, #344b80, #101d4c 55%, #071438);
+}
+
+.boot-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  width: min(100%, 1000px);
+  padding: 30px;
+}
+
+.boot-card .originalIcon {
+  width: 270px;
+  height: 190px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 18px 20px #0007);
+}
+
+.boot-card h1 {
+  font-size: clamp(34px, 6vw, 70px);
+  line-height: 0.98;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin: 20px 0 16px;
+}
+
+.boot-card h1::after {
+  content: " NA HORA DE VOTAR!";
+  display: block;
+  color: #ffb000;
+}
+
+.boot-card p {
+  font-size: 17px;
+  color: #e5e9f5;
+}
+
+.primary-btn {
+  background: #ffb000;
+  color: #102354;
+  min-width: 270px;
+  padding: 20px 28px;
+  border-radius: 9px;
+  box-shadow: 0 5px 0 #bd7800;
+  text-transform: uppercase;
+  font-size: 17px;
+}
+
+/* ÁREA DA URNA */
+
+.app {
+  background: #f4f5f8;
+  color: #132d6b;
+}
+
+.topbar {
+  background: linear-gradient(90deg, #10245f, #203b82);
+  border: 0;
+  border-radius: 0;
+  margin: -18px -18px 25px;
+  width: calc(100% + 36px);
+  padding: 18px 32px;
+}
+
+.topbar strong {
+  font-size: 27px;
+  text-transform: uppercase;
+}
+
+.topbar span {
+  color: #ffb000;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.voting-area {
+  max-width: 1250px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+  gap: 30px;
+}
+
+/* CORPO DA URNA */
+
+.urn {
+  background:
+    linear-gradient(145deg, #f4f5f7, #b9c0ca 48%, #858e9c);
+  border: 5px solid #aab2bd;
+  border-radius: 28px;
+  padding: 20px;
+  box-shadow:
+    inset 0 0 0 3px #e8ebef,
+    0 25px 45px #0004;
+}
+
+.urn-top {
+  color: #182c66;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.urn-screen-frame {
+  background: #202630;
+  border: 4px solid #69727f;
+  padding: 14px;
+}
+
+.urn-screen {
+  background: #e8f1fc;
+  border: 4px solid #172b61;
+  min-height: 350px;
+}
+
+.screen-header {
+  background: #e8f1fc;
+  color: #173477;
+  border-bottom: 2px solid #294d9c;
+  text-align: left;
+  font-size: 22px;
+  padding: 15px 20px;
+}
+
+.screen-content {
+  padding: 28px;
+}
+
+.stage-message {
+  color: #173477;
+  text-align: center;
+  font-size: 25px;
+}
+
+.candidate-info {
+  background: #f5f8ff;
+  border: 2px solid #a8b8d5;
+}
+
+.candidate-photo {
+  background: #173477;
+  border-color: #0b2059;
+}
+
+.candidate-details strong {
+  color: #173477;
+}
+
+.vote-status {
+  background: #dce8fa;
+  color: #173477;
+  border-color: #a8b8d5;
+}
+
+/* PAINEL DO TECLADO */
+
+.interaction {
+  background: #252a32;
+  border: 5px solid #11151c;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow:
+    inset 0 0 0 2px #4c535e,
+    0 20px 35px #0005;
+}
+
+.number-display {
+  color: white;
+}
+
+.number-box {
+  background: #edf3fb;
+  color: #152d68;
+  border: 4px inset #6e7785;
+}
+
+.keypad {
+  gap: 12px;
+}
+
+.key {
+  min-height: 66px;
+  background: linear-gradient(#414953, #171b22);
+  border: 2px solid #080b10;
+  box-shadow: 0 5px 0 #080b10;
+  border-radius: 9px;
+}
+
+.action-buttons {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.action-btn {
+  min-height: 62px;
+  font-size: 15px;
+  border-radius: 8px;
+}
+
+.blank-btn {
+  background: #f2f2f2;
+  color: #151515;
+}
+
+.clear-btn {
+  background: #f47721;
+  color: #111;
+}
+
+.confirm-btn {
+  background: #19c978;
+  color: #071b13;
+}
+
+.footer {
+  background: #10245f;
+  border: 0;
+  border-radius: 0;
+  color: white;
+}
+
+@media (max-width: 800px) {
+  .topbar {
+    margin: -10px -10px 20px;
+    width: calc(100% + 20px);
+    padding: 16px;
+  }
+
+  .topbar strong {
+    font-size: 20px;
+  }
+
+  .voting-area {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .boot-card h1 {
+    font-size: 35px;
+  }
+
+  .boot-card .originalIcon {
+    width: 190px;
+    height: 140px;
+  }
+
+  .urn {
+    padding: 10px;
+  }
+
+  .screen-content {
+    padding: 14px;
+  }
+
+  .stage-message {
+    font-size: 19px;
+  }
+
+  .interaction {
+    padding: 14px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 8px 3px;
+  }
+}
