@@ -477,3 +477,33 @@ if (settingsBtn) {
     );
   });
 }
+
+/* LIMPA VERSÕES ANTIGAS DO SERVICE WORKER E DO CACHE */
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.getRegistrations()
+      .then(function (registrations) {
+        registrations.forEach(function (registration) {
+          registration.unregister();
+        });
+      })
+      .catch(function (error) {
+        console.log("Não foi possível remover o Service Worker:", error);
+      });
+  });
+}
+
+if ("caches" in window) {
+  caches.keys()
+    .then(function (cacheNames) {
+      return Promise.all(
+        cacheNames.map(function (cacheName) {
+          return caches.delete(cacheName);
+        })
+      );
+    })
+    .catch(function (error) {
+      console.log("Não foi possível limpar o cache:", error);
+    });
+}
