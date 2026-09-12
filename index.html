@@ -1,2 +1,390 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="theme-color"
+    content="#101820"
+  />
+
+  <title>Simulador de Votação</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+
+<body>
+
+  <!-- TELA INICIAL -->
+  <section id="bootScreen" class="boot-screen">
+
+    <div class="boot-card">
+
+      <img
+        src="icon.svg"
+        alt="Urna eletrônica"
+        class="originalIcon"
+      />
+
+      <h1>Simulador de Votação</h1>
+
+      <p>
+        Treine como votar em uma urna eletrônica.
+      </p>
+
+      <button
+        id="startBtn"
+        class="primary-btn"
+        type="button"
+      >
+        Iniciar votação
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <main
+    id="app"
+    class="app"
+    hidden
+  >
+
+    <header class="topbar">
+
+      <div>
+        <strong>SIMULADOR DE VOTAÇÃO</strong>
+        <span>Treinamento</span>
+      </div>
+
+      <button
+        id="settingsBtn"
+        class="small-btn"
+        type="button"
+      >
+        ⚙
+      </button>
+
+    </header>
+
+
+    <section class="voting-area">
+
+      <!-- URNA -->
+      <div class="urn-container">
+
+        <div class="urn">
+
+          <div class="urn-top">
+            <span>URNA ELETRÔNICA</span>
+          </div>
+
+          <div class="urn-screen-frame">
+
+            <div
+              id="stage"
+              class="urn-screen"
+            >
+
+              <div class="screen-header">
+                VOTAÇÃO
+              </div>
+
+              <div class="screen-content">
+
+                <p
+                  id="stageMessage"
+                  class="stage-message"
+                >
+                  Digite o número do candidato
+                </p>
+
+                <div
+                  id="candidateInfo"
+                  class="candidate-info"
+                >
+
+                  <div
+                    id="candidatePhoto"
+                    class="candidate-photo"
+                  >
+                    ?
+                  </div>
+
+                  <div class="candidate-details">
+
+                    <span class="label">
+                      CANDIDATO
+                    </span>
+
+                    <strong
+                      id="candidateName"
+                    >
+                      Aguardando voto
+                    </strong>
+
+                    <span class="label">
+                      NÚMERO
+                    </span>
+
+                    <strong
+                      id="candidateNumber"
+                    >
+                      —
+                    </strong>
+
+                  </div>
+
+                </div>
+
+                <div
+                  id="voteStatus"
+                  class="vote-status"
+                >
+                  Nenhum número digitado
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="urn-bottom">
+
+            <div class="urn-light"></div>
+
+            <span>
+              JUSTIÇA ELEITORAL
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PAINEL DE INTERAÇÃO -->
+      <div
+        id="interaction"
+        class="interaction"
+      >
+
+        <div class="number-display">
+
+          <span>NÚMERO DIGITADO</span>
+
+          <div
+            id="numberDisplay"
+            class="number-box"
+          >
+            <span class="number-placeholder">
+              _
+            </span>
+          </div>
+
+        </div>
+
+
+        <!-- TECLADO NUMÉRICO -->
+        <div
+          id="keypad"
+          class="keypad"
+        >
+
+          <button
+            class="key"
+            data-number="1"
+            type="button"
+          >
+            1
+          </button>
+
+          <button
+            class="key"
+            data-number="2"
+            type="button"
+          >
+            2
+          </button>
+
+          <button
+            class="key"
+            data-number="3"
+            type="button"
+          >
+            3
+          </button>
+
+          <button
+            class="key"
+            data-number="4"
+            type="button"
+          >
+            4
+          </button>
+
+          <button
+            class="key"
+            data-number="5"
+            type="button"
+          >
+            5
+          </button>
+
+          <button
+            class="key"
+            data-number="6"
+            type="button"
+          >
+            6
+          </button>
+
+          <button
+            class="key"
+            data-number="7"
+            type="button"
+          >
+            7
+          </button>
+
+          <button
+            class="key"
+            data-number="8"
+            type="button"
+          >
+            8
+          </button>
+
+          <button
+            class="key"
+            data-number="9"
+            type="button"
+          >
+            9
+          </button>
+
+          <button
+            class="key key-zero"
+            data-number="0"
+            type="button"
+          >
+            0
+          </button>
+
+        </div>
+
+
+        <!-- BOTÕES DE AÇÃO -->
+        <div class="action-buttons">
+
+          <button
+            id="blankBtn"
+            class="action-btn blank-btn"
+            type="button"
+          >
+            BRANCO
+          </button>
+
+          <button
+            id="clearBtn"
+            class="action-btn clear-btn"
+            type="button"
+          >
+            CORRIGE
+          </button>
+
+          <button
+            id="enterBtn"
+            class="action-btn confirm-btn"
+            type="button"
+          >
+            CONFIRMA
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- MENSAGEM INFERIOR -->
+    <footer class="footer">
+
+      <span id="footerMessage">
+        Digite o número usando o teclado.
+      </span>
+
+      <button
+        id="restartBtn"
+        class="restart-btn"
+        type="button"
+      >
+        Reiniciar
+      </button>
+
+    </footer>
+
+  </main>
+
+
+  <!-- JANELA DE CONFIRMAÇÃO -->
+  <dialog
+    id="confirmDialog"
+    class="confirm-dialog"
+  >
+
+    <div class="dialog-content">
+
+      <h2>Confirmar voto?</h2>
+
+      <p>
+        Confira os dados antes de confirmar.
+      </p>
+
+      <div
+        id="dialogCandidate"
+        class="dialog-candidate"
+      >
+        —
+      </div>
+
+      <div class="dialog-actions">
+
+        <button
+          id="cancelBtn"
+          class="action-btn clear-btn"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="confirmBtn"
+          class="action-btn confirm-btn"
+          type="button"
+        >
+          Confirmar
+        </button>
+
+      </div>
+
+    </div>
+
+  </dialog>
+
+
+  <script src="app.js"></script>
+
+</body>
 </html>
