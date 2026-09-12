@@ -1,0 +1,17 @@
+{
+  "name": "Simulador de Votação — V4",
+  "short_name": "Simulador V4",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#08163f",
+  "theme_color": "#10246d",
+  "description": "Simulação educativa independente de votação.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

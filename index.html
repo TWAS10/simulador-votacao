@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10246d">
+<meta name="description" content="Simulador educativo de votação, independente e sem registro de votos reais.">
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Simulador de Votação — V4</title>
+</head>
+<body>
+<div id="boot" class="boot">
+  <div class="bootGlow"></div>
+  <div class="bootUrna" aria-hidden="true">
+    <div class="bootTop"><div class="bootGlass"></div><div class="bootKeys">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div></div><div class="bootBase"></div>
+  </div>
+  <div class="bootCopy"><small>SIMULAÇÃO EDUCATIVA • V4</small><h1>NA HORA DE<br><b>VOTAR!</b></h1>
+  <p>Aprenda o fluxo de votação em uma interface demonstrativa.</p></div>
+  <button id="enter" class="primaryBtn">INICIAR SIMULAÇÃO <span>→</span></button>
+</div>
+
+<main id="app" class="app" hidden>
+<header class="nav">
+  <div class="mark"><b>SIMULADOR</b><span>DE VOTAÇÃO</span></div>
+  <div class="navRight"><span class="offline"><i></i> OFFLINE</span><span class="demo">DEMO</span><button id="settings" aria-label="Configurar candidatos">⚙</button></div>
+</header>
+
+<section class="stage">
+  <div class="scene">
+    <div class="floor"></div>
+    <div class="urna" aria-hidden="true">
+      <div class="urnaFace">
+        <div class="glass">
+          <div class="glassBar"></div>
+          <div id="heroScreen" class="heroScreen"><small>SIMULAÇÃO DE VOTO</small><strong>PRIMEIRO,</strong><b>DEPUTADO<br>FEDERAL</b></div>
+        </div>
+        <div class="console">
+          <div class="consoleTop">SIMULAÇÃO<br><b>EDUCATIVA</b></div>
+          <div class="consoleKeys"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="consoleActions"><i></i><b></b></div>
+        </div>
+      </div>
+      <div class="urnaLip"></div><div class="urnaShadow"></div>
+    </div>
+    <div class="stageText"><small>ATENÇÃO</small><span>NA HORA DE</span><b>VOTAR!</b></div>
+  </div>
+</section>
+
+<section class="interaction">
+  <div class="panel">
+    <div class="panelHead"><span id="office">DEPUTADO FEDERAL</span><b id="step">01 <i>/ 02</i></b></div>
+    <div class="label">DIGITE O NÚMERO DO CANDIDATO</div>
+    <div id="digits" class="digits" aria-live="polite"></div>
+    <div id="candidate" class="candidate hidden">
+      <div class="avatar" id="avatar">?</div>
+      <div class="candidateData"><b id="name">Candidato</b><small id="party">Partido</small><span id="num"></span></div>
+      <div class="ok">✓</div>
+    </div>
+    <div id="message" class="message" aria-live="polite">Digite o número para consultar.</div>
+  </div>
+  <div class="keypad" id="keypad" aria-label="Teclado numérico"></div>
+  <div class="actions"><button id="correct">CORRIGE</button><button id="confirm">CONFIRMA</button></div>
+  <div class="blankRow"><button id="blank">VOTO EM BRANCO</button></div>
+  <button id="restart" class="restart">↻ REINICIAR SIMULAÇÃO</button>
+</section>
+<p class="legal">SIMULAÇÃO INDEPENDENTE • NÃO É UMA URNA OFICIAL • NENHUM VOTO REAL É REGISTRADO</p>
+</main>
+
+<dialog id="admin">
+  <div class="modalHead"><div><b>CADASTRO LOCAL</b><span>Candidatos da demonstração</span></div><button id="close" aria-label="Fechar">×</button></div>
+  <p>Os dados ficam somente neste navegador. Use nomes e números fictícios para demonstrações.</p>
+  <div id="editor"></div>
+  <div class="modalActions"><button id="resetData">RESTAURAR EXEMPLOS</button><button id="save" class="saveBtn">SALVAR ALTERAÇÕES</button></div>
+</dialog>
+<div id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
