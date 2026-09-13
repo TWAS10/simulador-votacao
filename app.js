@@ -3,28 +3,28 @@ const candidates = {
     name: "Luiz Inácio Lula da Silva",
     party: "PT",
     number: "13",
-    photo: "fotos/13.jpg"
+    photo: "fotos/LULA.jpg"
   },
 
   "22": {
     name: "Flávio Bolsonaro",
     party: "PL",
     number: "22",
-    photo: "fotos/22.jpg"
+    photo: "fotos/FLAVIO BOLSONARO.jpg"
   },
 
   "45": {
     name: "Ronaldo Caiado",
     party: "PSD",
     number: "45",
-    photo: "fotos/45.jpg"
+    photo: "fotos/RONALDO CAIADO.jpg"
   },
 
   "29": {
     name: "Rui Costa Pimenta",
     party: "PCO",
     number: "29",
-    photo: "fotos/29.jpg"
+    photo: "fotos/RUI COSTA PIMENTA.jpg"
   },
 
   "80": {
@@ -38,42 +38,42 @@ const candidates = {
     name: "Romeu Zema",
     party: "Novo",
     number: "30",
-    photo: "fotos/30.jpg"
+    photo: "fotos/ROMEU ZEMA.jpg"
   },
 
   "16": {
     name: "Hertz Dias",
     party: "PSTU",
     number: "16",
-    photo: "fotos/16.jpg"
+    photo: "fotos/HERTZ DIAS.jpg"
   },
 
   "21": {
     name: "Edmilson Costa",
     party: "PCB",
     number: "21",
-    photo: "fotos/21.jpg"
+    photo: "fotos/EDMILSON COSTA.jpg"
   },
 
   "14": {
     name: "Renan Santos",
     party: "Missão",
     number: "14",
-    photo: "fotos/14.jpg"
+    photo: "fotos/RENAN SANTOS.jpg"
   },
 
   "35": {
     name: "Wilson Grassi",
     party: "Democrata",
     number: "35",
-    photo: "fotos/35.jpg"
+    photo: "fotos/WILSON GRASSI.jpg"
   },
 
   "27": {
     name: "Clariana Barão",
     party: "DC",
     number: "27",
-    photo: "fotos/27.jpg"
+    photo: "fotos/CLARIANA BARAO.jpg"
   },
 
   "70": {
