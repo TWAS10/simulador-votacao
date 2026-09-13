@@ -1,1 +1,1019 @@
-<!DOCTYPE html> <html lang="pt-BR"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0" > <title>Painel de Resultados</title> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <style> * { box-sizing: border-box; } body { margin: 0; min-height: 100vh; font-family: Arial, Helvetica, sans-serif; background: radial-gradient( circle at top, #263b70 0%, #101d4c 50%, #071438 100% ); color: #17202a; } .container { width: min(1100px, 94%); margin: 0 auto; padding: 35px 0 50px; } .header { text-align: center; color: white; margin-bottom: 30px; } .header h1 { margin: 0 0 8px; font-size: clamp(30px, 5vw, 48px); font-weight: 900; } .header p { margin: 0; color: #dce5ff; font-size: 17px; } .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 25px; } .card { background: white; border-radius: 18px; padding: 25px; box-shadow: 0 12px 35px #0005; } .summary .card { text-align: center; } .card-label { display: block; color: #64748b; font-size: 15px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; } .card-value { display: block; color: #102354; font-size: 40px; font-weight: 900; } .results-card { background: white; border-radius: 18px; padding: 28px; box-shadow: 0 12px 35px #0005; } .results-card h2 { margin: 0 0 22px; color: #102354; font-size: 25px; } #results { display: flex; flex-direction: column; gap: 15px; } .candidate { padding: 18px; border: 1px solid #dbe2ea; border-radius: 14px; background: #f8fafc; } .candidate-top { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 10px; } .candidate-info { display: flex; flex-direction: column; gap: 4px; } .candidate-name { font-size: 18px; font-weight: 900; color: #17202a; } .candidate-number { font-size: 14px; font-weight: 700; color: #64748b; } .candidate-total { text-align: right; white-space: nowrap; } .candidate-total strong { display: block; color: #102354; font-size: 24px; font-weight: 900; } .candidate-total span { color: #64748b; font-size: 14px; font-weight: 700; } .bar { width: 100%; height: 14px; overflow: hidden; background: #e2e8f0; border-radius: 999px; } .bar-fill { height: 100%; width: 0%; background: #315aa8; border-radius: 999px; transition: width 0.5s ease; } .special-results { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 25px; } .special { background: white; border-radius: 18px; padding: 25px; box-shadow: 0 12px 35px #0005; text-align: center; } .special h3 { margin: 0 0 8px; color: #64748b; font-size: 15px; text-transform: uppercase; } .special strong { color: #102354; font-size: 35px; font-weight: 900; } .status { margin-top: 25px; text-align: center; color: #dce5ff; font-size: 14px; } .empty { padding: 35px; text-align: center; color: #64748b; font-weight: 700; } .error { padding: 20px; color: #991b1b; background: #fee2e2; border-radius: 12px; font-weight: 700; text-align: center; } @media (max-width: 700px) { .summary { grid-template-columns: 1fr; } .special-results { grid-template-columns: 1fr; } .candidate-top { align-items: flex-start; } .candidate-total strong { font-size: 20px; } } </style> </head> <body> <main class="container"> <header class="header"> <h1> Resultado da Votação </h1> <p> Painel de apuração do simulador </p> </header> <section class="summary"> <div class="card"> <span class="card-label"> Total de votos </span> <span id="totalVotes" class="card-value" > 0 </span> </div> <div class="card"> <span class="card-label"> Votos válidos </span> <span id="validVotes" class="card-value" > 0 </span> </div> <div class="card"> <span class="card-label"> Candidatos votados </span> <span id="candidateCount" class="card-value" > 0 </span> </div> </section> <section class="results-card"> <h2> Apuração por candidato </h2> <div id="results"> <div class="empty"> Carregando resultados... </div> </div> </section> <section class="special-results"> <div class="special"> <h3> Votos em branco </h3> <strong id="blankVotes"> 0 </strong> </div> <div class="special"> <h3> Votos nulos </h3> <strong id="nullVotes"> 0 </strong> </div> </section> <div id="status" class="status" > Carregando dados... </div> </main> <script> /* ========================= SUPABASE ========================= */ const SUPABASE_URL = "https://xngltwuzdcmmnqzlvtqp.supabase.co"; const SUPABASE_PUBLISHABLE_KEY = "COLE_AQUI_A_MESMA_CHAVE_PUBLICAVEL_DO_INDEX"; const supabaseClient = window.supabase.createClient( SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY ); /* ========================= CANDIDATOS ========================= */ const candidates = { "13": { name: "Luiz Inácio Lula da Silva", party: "PT" }, "22": { name: "Flávio Bolsonaro", party: "PL" }, "45": { name: "Ronaldo Caiado", party: "PSD" }, "29": { name: "Rui Costa Pimenta", party: "PCO" }, "80": { name: "Samara Martins", party: "UP" }, "30": { name: "Romeu Zema", party: "Novo" }, "16": { name: "Hertz Dias", party: "PSTU" }, "21": { name: "Edmilson Costa", party: "PCB" }, "14": { name: "Renan Santos", party: "Missão" }, "35": { name: "Wilson Grassi", party: "Democrata" }, "27": { name: "Clariana Barão", party: "DC" }, "70": { name: "Augusto Cury", party: "Avante" } }; /* ========================= ELEMENTOS ========================= */ const totalVotes = document.getElementById( "totalVotes" ); const validVotes = document.getElementById( "validVotes" ); const candidateCount = document.getElementById( "candidateCount" ); const blankVotes = document.getElementById( "blankVotes" ); const nullVotes = document.getElementById( "nullVotes" ); const results = document.getElementById( "results" ); const status = document.getElementById( "status" ); /* ========================= CARREGAR RESULTADOS ========================= */ async function loadResults() { status.textContent = "Atualizando resultados..."; try { const { data, error } = await supabaseClient .from("vote_results") .select( "candidate_number, vote_type, total" ); if (error) { console.error( "Erro ao carregar resultados:", error ); results.innerHTML = '<div class="error">' + "Não foi possível carregar os resultados." + "</div>"; status.textContent = "Erro ao consultar os resultados."; return; } let total = 0; let valid = 0; let blanks = 0; let nulls = 0; const candidateResults = []; data.forEach(function (row) { const amount = Number(row.total) || 0; total += amount; if ( row.vote_type === "candidate" ) { valid += amount; candidateResults.push({ number: row.candidate_number, total: amount }); } if ( row.vote_type === "blank" ) { blanks += amount; } if ( row.vote_type === "null" ) { nulls += amount; } }); candidateResults.sort( function (a, b) { return b.total - a.total; } ); totalVotes.textContent = total; validVotes.textContent = valid; candidateCount.textContent = candidateResults.length; blankVotes.textContent = blanks; nullVotes.textContent = nulls; renderCandidates( candidateResults, valid ); status.textContent = "Resultados atualizados agora."; } catch (error) { console.error( "Erro inesperado:", error ); results.innerHTML = '<div class="error">' + "Erro ao carregar os resultados." + "</div>"; status.textContent = "Erro inesperado ao consultar o banco."; } } /* ========================= RENDERIZAR CANDIDATOS ========================= */ function renderCandidates( candidateResults, valid ) { if ( candidateResults.length === 0 ) { results.innerHTML = '<div class="empty">' + "Ainda não existem votos para candidatos." + "</div>"; return; } results.innerHTML = ""; candidateResults.forEach( function (item) { const candidate = candidates[item.number]; const name = candidate ? candidate.name : "Candidato " + item.number; const party = candidate ? candidate.party : ""; const percentage = valid > 0 ? ( item.total / valid * 100 ) : 0; const card = document.createElement( "div" ); card.className = "candidate"; card.innerHTML = ` <div class="candidate-top"> <div class="candidate-info"> <span class="candidate-name"> ${name} </span> <span class="candidate-number"> Nº ${item.number} ${party ? " — " + party : ""} </span> </div> <div class="candidate-total"> <strong> ${item.total} </strong> <span> ${percentage.toFixed(1)}% </span> </div> </div> <div class="bar"> <div class="bar-fill" style="width: ${percentage}%" ></div> </div> `; results.appendChild(card); } ); } /* ========================= PRIMEIRA CARGA ========================= */ loadResults(); /* ========================= ATUALIZAÇÃO AUTOMÁTICA A CADA 5 SEGUNDOS ========================= */ setInterval( loadResults, 5000 ); </script> </body> </html>
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
+
+  <title>Painel de Resultados</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #263b70 0%,
+          #101d4c 50%,
+          #071438 100%
+        );
+
+      color: #17202a;
+    }
+
+    .container {
+      width: min(1100px, 94%);
+      margin: 0 auto;
+      padding: 35px 0 50px;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+
+      font-size:
+        clamp(30px, 5vw, 48px);
+
+      font-weight: 900;
+    }
+
+    .header p {
+      margin: 0;
+
+      color: #dce5ff;
+
+      font-size: 17px;
+    }
+
+    /* =========================
+       RESUMO
+    ========================= */
+
+    .summary {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 18px;
+
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+
+      border-radius: 18px;
+
+      padding: 25px;
+
+      box-shadow:
+        0 12px 35px #0005;
+    }
+
+    .summary .card {
+      text-align: center;
+    }
+
+    .card-label {
+      display: block;
+
+      color: #64748b;
+
+      font-size: 15px;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      display: block;
+
+      color: #102354;
+
+      font-size: 40px;
+
+      font-weight: 900;
+    }
+
+    /* =========================
+       APURAÇÃO
+    ========================= */
+
+    .results-card {
+      background: white;
+
+      border-radius: 18px;
+
+      padding: 28px;
+
+      box-shadow:
+        0 12px 35px #0005;
+    }
+
+    .results-card h2 {
+      margin: 0 0 22px;
+
+      color: #102354;
+
+      font-size: 25px;
+    }
+
+    /*
+      IMPORTANTE:
+      OS RESULTADOS FICAM
+      SEMPRE UM ABAIXO DO OUTRO
+    */
+
+    #results {
+      display: flex !important;
+
+      flex-direction: column !important;
+
+      flex-wrap: nowrap !important;
+
+      align-items: stretch !important;
+
+      width: 100% !important;
+
+      gap: 15px;
+
+      margin: 0;
+
+      padding: 0;
+    }
+
+    .candidate {
+      display: block !important;
+
+      width: 100% !important;
+
+      flex: 0 0 100% !important;
+
+      padding: 18px;
+
+      border:
+        1px solid #dbe2ea;
+
+      border-radius: 14px;
+
+      background: #f8fafc;
+
+      margin: 0;
+    }
+
+    /*
+      INFORMAÇÕES DO CANDIDATO
+      FICAM ORGANIZADAS VERTICALMENTE
+    */
+
+    .candidate-top {
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: stretch;
+
+      gap: 12px;
+
+      margin-bottom: 12px;
+
+      width: 100%;
+    }
+
+    .candidate-info {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 4px;
+
+      width: 100%;
+    }
+
+    .candidate-name {
+      font-size: 18px;
+
+      font-weight: 900;
+
+      color: #17202a;
+    }
+
+    .candidate-number {
+      font-size: 14px;
+
+      font-weight: 700;
+
+      color: #64748b;
+    }
+
+    /*
+      VOTOS E PERCENTUAL
+      FICAM NA MESMA LINHA
+    */
+
+    .candidate-total {
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      width: 100%;
+
+      text-align: left;
+
+      white-space: nowrap;
+    }
+
+    .candidate-total strong {
+      display: block;
+
+      color: #102354;
+
+      font-size: 24px;
+
+      font-weight: 900;
+    }
+
+    .candidate-total span {
+      color: #64748b;
+
+      font-size: 14px;
+
+      font-weight: 700;
+    }
+
+    /* =========================
+       BARRA DE VOTOS
+    ========================= */
+
+    .bar {
+      width: 100%;
+
+      height: 14px;
+
+      overflow: hidden;
+
+      background: #e2e8f0;
+
+      border-radius: 999px;
+    }
+
+    .bar-fill {
+      height: 100%;
+
+      width: 0%;
+
+      background: #315aa8;
+
+      border-radius: 999px;
+
+      transition:
+        width 0.5s ease;
+    }
+
+    /* =========================
+       BRANCOS E NULOS
+    ========================= */
+
+    .special-results {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 18px;
+
+      margin-top: 25px;
+    }
+
+    .special {
+      background: white;
+
+      border-radius: 18px;
+
+      padding: 25px;
+
+      box-shadow:
+        0 12px 35px #0005;
+
+      text-align: center;
+    }
+
+    .special h3 {
+      margin: 0 0 8px;
+
+      color: #64748b;
+
+      font-size: 15px;
+
+      text-transform: uppercase;
+    }
+
+    .special strong {
+      color: #102354;
+
+      font-size: 35px;
+
+      font-weight: 900;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    .status {
+      margin-top: 25px;
+
+      text-align: center;
+
+      color: #dce5ff;
+
+      font-size: 14px;
+    }
+
+    .empty {
+      padding: 35px;
+
+      text-align: center;
+
+      color: #64748b;
+
+      font-weight: 700;
+    }
+
+    .error {
+      padding: 20px;
+
+      color: #991b1b;
+
+      background: #fee2e2;
+
+      border-radius: 12px;
+
+      font-weight: 700;
+
+      text-align: center;
+    }
+
+    /* =========================
+       CELULAR
+    ========================= */
+
+    @media (max-width: 700px) {
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .special-results {
+        grid-template-columns: 1fr;
+      }
+
+      .candidate {
+        padding: 16px;
+      }
+
+      .candidate-name {
+        font-size: 17px;
+      }
+
+      .candidate-total strong {
+        font-size: 20px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="container">
+
+```
+<!-- =========================
+     CABEÇALHO
+========================= -->
+
+<header class="header">
+
+  <h1>
+    Resultado da Votação
+  </h1>
+
+  <p>
+    Painel de apuração do simulador
+  </p>
+
+</header>
+
+
+<!-- =========================
+     RESUMO
+========================= -->
+
+<section class="summary">
+
+  <div class="card">
+
+    <span class="card-label">
+      Total de votos
+    </span>
+
+    <span
+      id="totalVotes"
+      class="card-value"
+    >
+      0
+    </span>
+
+  </div>
+
+
+  <div class="card">
+
+    <span class="card-label">
+      Votos válidos
+    </span>
+
+    <span
+      id="validVotes"
+      class="card-value"
+    >
+      0
+    </span>
+
+  </div>
+
+
+  <div class="card">
+
+    <span class="card-label">
+      Candidatos votados
+    </span>
+
+    <span
+      id="candidateCount"
+      class="card-value"
+    >
+      0
+    </span>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     RESULTADOS
+========================= -->
+
+<section class="results-card">
+
+  <h2>
+    Apuração por candidato
+  </h2>
+
+  <div id="results">
+
+    <div class="empty">
+      Carregando resultados...
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     VOTOS ESPECIAIS
+========================= -->
+
+<section class="special-results">
+
+  <div class="special">
+
+    <h3>
+      Votos em branco
+    </h3>
+
+    <strong id="blankVotes">
+      0
+    </strong>
+
+  </div>
+
+
+  <div class="special">
+
+    <h3>
+      Votos nulos
+    </h3>
+
+    <strong id="nullVotes">
+      0
+    </strong>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     STATUS
+========================= -->
+
+<div
+  id="status"
+  class="status"
+>
+  Carregando dados...
+</div>
+```
+
+  </main>
+
+  <script>
+
+    /* =========================
+       SUPABASE
+    ========================= */
+
+    const SUPABASE_URL =
+      "https://xngltwuzdcmmnqzlvtqp.supabase.co";
+
+
+    /*
+      COLOQUE AQUI, LOCALMENTE,
+      A MESMA CHAVE PUBLICÁVEL
+      QUE JÁ ESTÁ NO index.html.
+    */
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "COLE_AQUI_A_MESMA_CHAVE_PUBLICAVEL_DO_INDEX";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    /* =========================
+       CANDIDATOS
+    ========================= */
+
+    const candidates = {
+
+      "13": {
+        name: "Luiz Inácio Lula da Silva",
+        party: "PT"
+      },
+
+      "22": {
+        name: "Flávio Bolsonaro",
+        party: "PL"
+      },
+
+      "45": {
+        name: "Ronaldo Caiado",
+        party: "PSD"
+      },
+
+      "29": {
+        name: "Rui Costa Pimenta",
+        party: "PCO"
+      },
+
+      "80": {
+        name: "Samara Martins",
+        party: "UP"
+      },
+
+      "30": {
+        name: "Romeu Zema",
+        party: "Novo"
+      },
+
+      "16": {
+        name: "Hertz Dias",
+        party: "PSTU"
+      },
+
+      "21": {
+        name: "Edmilson Costa",
+        party: "PCB"
+      },
+
+      "14": {
+        name: "Renan Santos",
+        party: "Missão"
+      },
+
+      "35": {
+        name: "Wilson Grassi",
+        party: "Democrata"
+      },
+
+      "27": {
+        name: "Clariana Barão",
+        party: "DC"
+      },
+
+      "70": {
+        name: "Augusto Cury",
+        party: "Avante"
+      }
+
+    };
+
+
+    /* =========================
+       ELEMENTOS
+    ========================= */
+
+    const totalVotes =
+      document.getElementById(
+        "totalVotes"
+      );
+
+
+    const validVotes =
+      document.getElementById(
+        "validVotes"
+      );
+
+
+    const candidateCount =
+      document.getElementById(
+        "candidateCount"
+      );
+
+
+    const blankVotes =
+      document.getElementById(
+        "blankVotes"
+      );
+
+
+    const nullVotes =
+      document.getElementById(
+        "nullVotes"
+      );
+
+
+    const results =
+      document.getElementById(
+        "results"
+      );
+
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+
+    /* =========================
+       CARREGAR RESULTADOS
+    ========================= */
+
+    async function loadResults() {
+
+      status.textContent =
+        "Atualizando resultados...";
+
+      try {
+
+        const {
+          data,
+          error
+        } = await supabaseClient
+
+          .from("vote_results")
+
+          .select(
+            "candidate_number, vote_type, total"
+          );
+
+
+        if (error) {
+
+          console.error(
+            "Erro ao carregar resultados:",
+            error
+          );
+
+          results.innerHTML =
+            '<div class="error">' +
+            "Não foi possível carregar os resultados." +
+            "</div>";
+
+          status.textContent =
+            "Erro ao consultar os resultados.";
+
+          return;
+        }
+
+
+        let total = 0;
+
+        let valid = 0;
+
+        let blanks = 0;
+
+        let nulls = 0;
+
+        const candidateResults = [];
+
+
+        data.forEach(function (row) {
+
+          const amount =
+            Number(row.total) || 0;
+
+          total += amount;
+
+
+          if (
+            row.vote_type === "candidate"
+          ) {
+
+            valid += amount;
+
+            candidateResults.push({
+
+              number:
+                row.candidate_number,
+
+              total:
+                amount
+
+            });
+
+          }
+
+
+          if (
+            row.vote_type === "blank"
+          ) {
+
+            blanks += amount;
+
+          }
+
+
+          if (
+            row.vote_type === "null"
+          ) {
+
+            nulls += amount;
+
+          }
+
+        });
+
+
+        /* =========================
+           ORDENAR DO MAIOR
+           PARA O MENOR
+        ========================= */
+
+        candidateResults.sort(
+          function (a, b) {
+
+            return b.total - a.total;
+
+          }
+        );
+
+
+        /* =========================
+           ATUALIZAR RESUMO
+        ========================= */
+
+        totalVotes.textContent =
+          total;
+
+
+        validVotes.textContent =
+          valid;
+
+
+        candidateCount.textContent =
+          candidateResults.length;
+
+
+        blankVotes.textContent =
+          blanks;
+
+
+        nullVotes.textContent =
+          nulls;
+
+
+        /* =========================
+           MOSTRAR CANDIDATOS
+        ========================= */
+
+        renderCandidates(
+          candidateResults,
+          valid
+        );
+
+
+        status.textContent =
+          "Resultados atualizados agora.";
+
+      } catch (error) {
+
+        console.error(
+          "Erro inesperado:",
+          error
+        );
+
+        results.innerHTML =
+          '<div class="error">' +
+          "Erro ao carregar os resultados." +
+          "</div>";
+
+        status.textContent =
+          "Erro inesperado ao consultar o banco.";
+
+      }
+
+    }
+
+
+    /* =========================
+       RENDERIZAR CANDIDATOS
+    ========================= */
+
+    function renderCandidates(
+      candidateResults,
+      valid
+    ) {
+
+      if (
+        candidateResults.length === 0
+      ) {
+
+        results.innerHTML =
+          '<div class="empty">' +
+          "Ainda não existem votos para candidatos." +
+          "</div>";
+
+        return;
+      }
+
+
+      results.innerHTML = "";
+
+
+      candidateResults.forEach(
+        function (item, index) {
+
+          const candidate =
+            candidates[item.number];
+
+
+          const name =
+            candidate
+              ? candidate.name
+              : "Candidato " + item.number;
+
+
+          const party =
+            candidate
+              ? candidate.party
+              : "";
+
+
+          const percentage =
+            valid > 0
+              ? (
+                  item.total /
+                  valid *
+                  100
+                )
+              : 0;
+
+
+          const card =
+            document.createElement(
+              "div"
+            );
+
+
+          card.className =
+            "candidate";
+
+
+          card.innerHTML = `
+
+            <div class="candidate-top">
+
+              <div class="candidate-info">
+
+                <span class="candidate-name">
+                  ${index + 1}º — ${name}
+                </span>
+
+                <span class="candidate-number">
+                  Nº ${item.number}
+                  ${party ? " — " + party : ""}
+                </span>
+
+              </div>
+
+
+              <div class="candidate-total">
+
+                <strong>
+                  ${item.total} voto${item.total === 1 ? "" : "s"}
+                </strong>
+
+                <span>
+                  ${percentage.toFixed(1)}%
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="bar">
+
+              <div
+                class="bar-fill"
+                style="width: ${percentage}%"
+              ></div>
+
+            </div>
+
+          `;
+
+
+          results.appendChild(card);
+
+        }
+      );
+
+    }
+
+
+    /* =========================
+       PRIMEIRA CARGA
+    ========================= */
+
+    loadResults();
+
+
+    /* =========================
+       ATUALIZAÇÃO AUTOMÁTICA
+       A CADA 5 SEGUNDOS
+    ========================= */
+
+    setInterval(
+      loadResults,
+      5000
+    );
+
+  </script>
+
+</body>
+
+</html>
