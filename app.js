@@ -84,6 +84,7 @@ photo: "fotos/AUGUSTO CURY.jpg"
 }
 };
 
+
 /* =========================
 ESTADO DA VOTAÇÃO
 ========================= */
@@ -95,6 +96,7 @@ let voteType = "none";
 
 let accessCode = "";
 let accessCodeValidated = false;
+
 
 /* =========================
 ELEMENTOS DO HTML
@@ -112,7 +114,8 @@ document.getElementById("accessCodeBtn");
 const accessCodeMessage =
 document.getElementById("accessCodeMessage");
 
-const app = document.getElementById("app");
+const app =
+document.getElementById("app");
 
 const startBtn =
 document.getElementById("startBtn");
@@ -168,6 +171,7 @@ document.getElementById("confirmBtn");
 const settingsBtn =
 document.getElementById("settingsBtn");
 
+
 /* =========================
 CLIENTE SUPABASE
 ========================= */
@@ -191,6 +195,7 @@ return supabaseClient;
 return null;
 }
 
+
 /* =========================
 MOSTRAR FOTO DO CANDIDATO
 ========================= */
@@ -203,13 +208,18 @@ candidateNameText
 candidatePhoto.innerHTML = "";
 
 if (!photo) {
+
 candidatePhoto.textContent = "?";
+
 return;
+
 }
 
-const img = document.createElement("img");
+const img =
+document.createElement("img");
 
-img.src = encodeURI(photo);
+img.src =
+encodeURI(photo);
 
 img.alt =
 "Foto de " + candidateNameText;
@@ -217,21 +227,34 @@ img.alt =
 img.title =
 candidateNameText;
 
-img.style.width = "100%";
-img.style.height = "100%";
-img.style.objectFit = "cover";
-img.style.objectPosition = "center";
-img.style.display = "block";
+img.style.width =
+"100%";
 
-img.onerror = function () {
+img.style.height =
+"100%";
+
+img.style.objectFit =
+"cover";
+
+img.style.objectPosition =
+"center";
+
+img.style.display =
+"block";
+
+img.onerror =
+function () {
 
 candidatePhoto.innerHTML = "";
+
 candidatePhoto.textContent = "?";
 
 };
 
 candidatePhoto.appendChild(img);
+
 }
+
 
 /* =========================
 INICIAR VOTAÇÃO
@@ -246,7 +269,7 @@ if (
 ) {
 
 console.error(
-  "Elementos da tela de acesso não encontrados."
+"Elementos da tela de acesso não encontrados."
 );
 
 return;
@@ -281,16 +304,21 @@ accessCodeBtn.disabled = false;
 
 }
 
-setTimeout(function () {
+setTimeout(
+function () {
 
 if (accessCodeInput) {
 
-  accessCodeInput.focus();
+accessCodeInput.focus();
 
 }
 
-}, 100);
+},
+100
+);
+
 }
+
 
 /* =========================
 VALIDAR CÓDIGO DE ACESSO
@@ -305,7 +333,7 @@ if (
 ) {
 
 console.error(
-  "Elementos do código de acesso não encontrados."
+"Elementos do código de acesso não encontrados."
 );
 
 return;
@@ -318,7 +346,7 @@ accessCodeInput.value.trim();
 if (!code) {
 
 accessCodeMessage.textContent =
-  "Digite o código de acesso.";
+"Digite o código de acesso.";
 
 accessCodeInput.focus();
 
@@ -332,11 +360,11 @@ getSupabaseClient();
 if (!client) {
 
 console.error(
-  "supabaseClient não está disponível."
+"supabaseClient não está disponível."
 );
 
 accessCodeMessage.textContent =
-  "Erro de conexão com o sistema.";
+"Erro de conexão com o sistema.";
 
 return;
 
@@ -350,49 +378,53 @@ accessCodeMessage.textContent =
 try {
 
 const {
-  data,
-  error
-} = await client
-  .from("access_codes")
-  .select(
-    "id, code, used"
-  )
-  .eq("code", code)
-  .eq("used", false)
-  .maybeSingle();
+data,
+error
+} = await client.rpc(
+"validate_access_code",
+{
+p_code: code
+}
+);
 
 if (error) {
 
-  console.error(
-    "Erro ao validar código:",
-    error
-  );
+console.error(
+"Erro ao validar código:",
+error
+);
 
-  accessCodeMessage.textContent =
-    "Não foi possível validar o código. Tente novamente.";
+accessCodeMessage.textContent =
+"Não foi possível validar o código. Tente novamente.";
 
-  accessCodeBtn.disabled = false;
+accessCodeBtn.disabled = false;
 
-  return;
+return;
+
 }
 
-if (!data) {
+if (
+!data ||
+data.length === 0 ||
+data[0].valid !== true
+) {
 
-  accessCodeMessage.textContent =
-    "Código inválido ou já utilizado.";
+accessCodeMessage.textContent =
+"Código inválido ou já utilizado.";
 
-  accessCodeBtn.disabled = false;
+accessCodeBtn.disabled = false;
 
-  accessCodeInput.focus();
+accessCodeInput.focus();
 
-  return;
+return;
+
 }
 
 accessCode =
-  data.code;
+code;
 
 accessCodeValidated =
-  true;
+true;
 
 accessScreen.hidden = true;
 
@@ -401,22 +433,24 @@ app.hidden = false;
 resetVoting();
 
 footerMessage.textContent =
-  "Digite o número do candidato usando o teclado.";
+"Digite o número do candidato usando o teclado.";
 
 } catch (error) {
 
 console.error(
-  "Erro inesperado ao validar o código:",
-  error
+"Erro inesperado ao validar o código:",
+error
 );
 
 accessCodeMessage.textContent =
-  "Ocorreu um erro ao validar o código.";
+"Ocorreu um erro ao validar o código.";
 
 accessCodeBtn.disabled = false;
 
 }
+
 }
+
 
 /* =========================
 REINICIAR VOTAÇÃO
@@ -431,6 +465,7 @@ selectedCandidate = null;
 votingFinished = false;
 
 voteType = "none";
+
 
 /* =========================
 REATIVAR BOTÕES
@@ -452,12 +487,12 @@ são desativados.
 Ao iniciar uma nova votação,
 eles precisam obrigatoriamente
 voltar a ficar ativos.
-
 */
 
 confirmBtn.disabled = false;
 
 cancelBtn.disabled = false;
+
 
 /* =========================
 FECHAR CONFIRMAÇÃO
@@ -472,11 +507,13 @@ confirmDialog.close();
 
 }
 
+
 /* =========================
 LIMPAR NÚMERO
 ========================= */
 
 updateNumberDisplay();
+
 
 /* =========================
 RESTAURAR TELA PRINCIPAL
@@ -502,6 +539,7 @@ voteStatus.textContent =
 footerMessage.textContent =
 "Digite o número usando o teclado.";
 
+
 /* =========================
 REATIVAR TECLADO
 ========================= */
@@ -509,16 +547,20 @@ REATIVAR TECLADO
 if (keypad) {
 
 const keys =
-  keypad.querySelectorAll("button");
+keypad.querySelectorAll("button");
 
-keys.forEach(function (key) {
+keys.forEach(
+function (key) {
 
-  key.disabled = false;
-
-});
+key.disabled = false;
 
 }
+);
+
 }
+
+}
+
 
 /* =========================
 MOSTRAR NÚMERO DIGITADO
@@ -531,7 +573,7 @@ typedNumber.length === 0
 ) {
 
 numberDisplay.innerHTML =
-  '<span class="number-placeholder">_</span>';
+'<span class="number-placeholder">_</span>';
 
 return;
 
@@ -539,7 +581,9 @@ return;
 
 numberDisplay.textContent =
 typedNumber;
+
 }
+
 
 /* =========================
 DIGITAR NÚMERO
@@ -572,17 +616,19 @@ typedNumber.length === 1
 ) {
 
 stageMessage.textContent =
-  "Digite o segundo número";
+"Digite o segundo número";
 
 voteStatus.textContent =
-  "Número incompleto";
+"Número incompleto";
 
 return;
 
 }
 
 showCandidate();
+
 }
+
 
 /* =========================
 MOSTRAR CANDIDATO
@@ -598,24 +644,24 @@ if (!selectedCandidate) {
 voteType = "null";
 
 stageMessage.textContent =
-  "Número inválido";
+"Número inválido";
 
 candidateName.textContent =
-  "VOTO NULO";
+"VOTO NULO";
 
 candidateNumber.textContent =
-  typedNumber;
+typedNumber;
 
 candidatePhoto.innerHTML = "";
 
 candidatePhoto.textContent =
-  "X";
+"X";
 
 voteStatus.textContent =
-  "Esse número não está cadastrado.";
+"Esse número não está cadastrado.";
 
 footerMessage.textContent =
-  "Pressione CORRIGE para tentar novamente.";
+"Pressione CORRIGE para tentar novamente.";
 
 return;
 
@@ -642,7 +688,9 @@ selectedCandidate.party;
 
 footerMessage.textContent =
 "Confira os dados e pressione CONFIRMA.";
+
 }
+
 
 /* =========================
 CORRIGIR NÚMERO
@@ -683,7 +731,9 @@ voteStatus.textContent =
 
 footerMessage.textContent =
 "Digite o número usando o teclado.";
+
 }
+
 
 /* =========================
 VOTO EM BRANCO
@@ -724,7 +774,9 @@ voteStatus.textContent =
 
 footerMessage.textContent =
 "Pressione CONFIRMA para registrar o voto em branco.";
+
 }
+
 
 /* =========================
 ABRIR CONFIRMAÇÃO
@@ -741,7 +793,7 @@ return;
 if (!accessCodeValidated) {
 
 alert(
-  "Informe um código de acesso válido."
+"Informe um código de acesso válido."
 );
 
 return;
@@ -751,7 +803,7 @@ return;
 if (voteType === "none") {
 
 alert(
-  "Digite um número ou escolha BRANCO."
+"Digite um número ou escolha BRANCO."
 );
 
 return;
@@ -764,7 +816,7 @@ typedNumber.length < 2
 ) {
 
 alert(
-  "Digite os dois números do candidato."
+"Digite os dois números do candidato."
 );
 
 return;
@@ -774,7 +826,7 @@ return;
 if (voteType === "blank") {
 
 dialogCandidate.textContent =
-  "VOTO EM BRANCO";
+"VOTO EM BRANCO";
 
 confirmDialog.showModal();
 
@@ -785,8 +837,8 @@ return;
 if (voteType === "null") {
 
 dialogCandidate.textContent =
-  "VOTO NULO — número " +
-  typedNumber;
+"VOTO NULO — número " +
+typedNumber;
 
 confirmDialog.showModal();
 
@@ -797,14 +849,16 @@ return;
 if (selectedCandidate) {
 
 dialogCandidate.textContent =
-  selectedCandidate.name +
-  " — número " +
-  selectedCandidate.number;
+selectedCandidate.name +
+" — número " +
+selectedCandidate.number;
 
 confirmDialog.showModal();
 
 }
+
 }
+
 
 /* =========================
 PREPARAR DADOS DO VOTO
@@ -817,8 +871,8 @@ voteType === "candidate"
 ) {
 
 return {
-  candidate_number: typedNumber,
-  vote_type: "candidate"
+candidate_number: typedNumber,
+vote_type: "candidate"
 };
 
 }
@@ -828,8 +882,8 @@ voteType === "blank"
 ) {
 
 return {
-  candidate_number: null,
-  vote_type: "blank"
+candidate_number: null,
+vote_type: "blank"
 };
 
 }
@@ -839,14 +893,16 @@ voteType === "null"
 ) {
 
 return {
-  candidate_number: null,
-  vote_type: "null"
+candidate_number: null,
+vote_type: "null"
 };
 
 }
 
 return null;
+
 }
+
 
 /* =========================
 REGISTRAR VOTO
@@ -860,7 +916,7 @@ getVotePayload();
 if (!payload) {
 
 throw new Error(
-  "Tipo de voto inválido."
+"Tipo de voto inválido."
 );
 
 }
@@ -879,7 +935,6 @@ A política atual da tabela votes
 permite INSERT para anon, mas não
 precisamos conceder SELECT para
 registrar o voto.
-
 */
 
 const {
@@ -891,8 +946,8 @@ error
 if (error) {
 
 console.error(
-  "Erro ao registrar voto na tabela votes:",
-  error
+"Erro ao registrar voto na tabela votes:",
+error
 );
 
 throw error;
@@ -902,7 +957,9 @@ throw error;
 console.log(
 "Voto registrado com sucesso."
 );
+
 }
+
 
 /* =========================
 CONSUMIR CÓDIGO DE ACESSO
@@ -923,8 +980,8 @@ p_code: accessCode
 if (error) {
 
 console.error(
-  "Erro ao consumir código:",
-  error
+"Erro ao consumir código:",
+error
 );
 
 throw error;
@@ -937,13 +994,15 @@ data.length === 0
 ) {
 
 throw new Error(
-  "Código já utilizado ou indisponível."
+"Código já utilizado ou indisponível."
 );
 
 }
 
 return data;
+
 }
+
 
 /* =========================
 CONFIRMAR VOTO
@@ -963,7 +1022,7 @@ if (
 ) {
 
 alert(
-  "Código de acesso não validado."
+"Código de acesso não validado."
 );
 
 return;
@@ -976,12 +1035,13 @@ getSupabaseClient();
 if (!client) {
 
 alert(
-  "Erro de conexão com o sistema."
+"Erro de conexão com o sistema."
 );
 
 return;
 
 }
+
 
 /*
 Desativa os botões enquanto
@@ -998,26 +1058,26 @@ voteStatus.textContent =
 try {
 
 /*
-  PRIMEIRO:
-  registra o voto.
+PRIMEIRO:
+registra o voto.
 */
 
 await registerVote(client);
 
 
 /*
-  SEGUNDO:
-  consome o código de acesso.
+SEGUNDO:
+consome o código de acesso.
 
-  O código não é armazenado
-  junto com o voto.
+O código não é armazenado
+junto com o voto.
 */
 
 await consumeAccessCode(client);
 
 
 /*
-  SUCESSO
+SUCESSO
 */
 
 confirmDialog.close();
@@ -1029,24 +1089,24 @@ accessCodeValidated = false;
 accessCode = "";
 
 stageMessage.textContent =
-  "VOTO CONFIRMADO";
+"VOTO CONFIRMADO";
 
 candidateName.textContent =
-  "FIM";
+"FIM";
 
 candidateNumber.textContent =
-  "✓";
+"✓";
 
 candidatePhoto.innerHTML = "";
 
 candidatePhoto.textContent =
-  "✓";
+"✓";
 
 voteStatus.textContent =
-  "Seu voto foi registrado no simulador.";
+"Seu voto foi registrado no simulador.";
 
 footerMessage.textContent =
-  "Votação encerrada. Clique em Reiniciar para votar novamente.";
+"Votação encerrada. Clique em Reiniciar para votar novamente.";
 
 enterBtn.disabled = true;
 
@@ -1056,30 +1116,32 @@ clearBtn.disabled = true;
 
 if (keypad) {
 
-  const keys =
-    keypad.querySelectorAll("button");
+const keys =
+keypad.querySelectorAll("button");
 
-  keys.forEach(function (key) {
+keys.forEach(
+function (key) {
 
-    key.disabled = true;
+key.disabled = true;
 
-  });
+}
+);
 
 }
 
 } catch (error) {
 
 console.error(
-  "Erro ao finalizar votação:",
-  error
+"Erro ao finalizar votação:",
+error
 );
 
 voteStatus.textContent =
-  "Não foi possível concluir a votação. Verifique o sistema antes de tentar novamente.";
+"Não foi possível concluir a votação. Verifique o sistema antes de tentar novamente.";
 
 /*
-  Se ocorrer erro, os botões
-  voltam a ficar disponíveis.
+Se ocorrer erro, os botões
+voltam a ficar disponíveis.
 */
 
 confirmBtn.disabled = false;
@@ -1087,7 +1149,9 @@ confirmBtn.disabled = false;
 cancelBtn.disabled = false;
 
 }
+
 }
+
 
 /* =========================
 EVENTO DO BOTÃO INICIAR
@@ -1102,6 +1166,7 @@ startVoting
 
 }
 
+
 /* =========================
 BOTÃO VALIDAR CÓDIGO
 ========================= */
@@ -1112,13 +1177,13 @@ accessCodeBtn.addEventListener(
 "click",
 function () {
 
-  validateAccessCode();
+validateAccessCode();
 
 }
-
 );
 
 }
+
 
 /* =========================
 ENTER NO CAMPO DO CÓDIGO
@@ -1130,19 +1195,19 @@ accessCodeInput.addEventListener(
 "keydown",
 function (event) {
 
-  if (event.key === "Enter") {
+if (event.key === "Enter") {
 
-    event.preventDefault();
+event.preventDefault();
 
-    validateAccessCode();
-
-  }
+validateAccessCode();
 
 }
 
+}
 );
 
 }
+
 
 /* =========================
 EVENTO DO TECLADO
@@ -1154,28 +1219,29 @@ keypad.addEventListener(
 "click",
 function (event) {
 
-  const button =
-    event.target.closest(
-      "[data-number]"
-    );
+const button =
+event.target.closest(
+"[data-number]"
+);
 
-  if (
-    !button ||
-    button.disabled
-  ) {
+if (
+!button ||
+button.disabled
+) {
 
-    return;
-  }
-
-  typeNumber(
-    button.dataset.number
-  );
+return;
 
 }
 
+typeNumber(
+button.dataset.number
 );
 
 }
+);
+
+}
+
 
 /* =========================
 BOTÃO CORRIGE
@@ -1190,6 +1256,7 @@ clearNumber
 
 }
 
+
 /* =========================
 BOTÃO BRANCO
 ========================= */
@@ -1202,6 +1269,7 @@ voteBlank
 );
 
 }
+
 
 /* =========================
 BOTÃO CONFIRMA
@@ -1216,6 +1284,7 @@ openConfirmation
 
 }
 
+
 /* =========================
 CANCELAR CONFIRMAÇÃO
 ========================= */
@@ -1226,17 +1295,17 @@ cancelBtn.addEventListener(
 "click",
 function () {
 
-  confirmDialog.close();
+confirmDialog.close();
 
-  confirmBtn.disabled = false;
+confirmBtn.disabled = false;
 
-  cancelBtn.disabled = false;
+cancelBtn.disabled = false;
 
 }
-
 );
 
 }
+
 
 /* =========================
 CONFIRMAR DENTRO DA JANELA
@@ -1251,6 +1320,7 @@ confirmVote
 
 }
 
+
 /* =========================
 BOTÃO REINICIAR
 ========================= */
@@ -1261,70 +1331,70 @@ restartBtn.addEventListener(
 "click",
 function () {
 
-  /*
-    Primeiro garantimos que qualquer
-    janela de confirmação esteja fechada
-    e que seus botões estejam ativos.
-  */
+/*
+Primeiro garantimos que qualquer
+janela de confirmação esteja fechada
+e que seus botões estejam ativos.
+*/
 
-  if (
-    confirmDialog &&
-    confirmDialog.open
-  ) {
+if (
+confirmDialog &&
+confirmDialog.open
+) {
 
-    confirmDialog.close();
-
-  }
-
-  confirmBtn.disabled = false;
-
-  cancelBtn.disabled = false;
-
-
-  /*
-    Limpa o estado da votação.
-  */
-
-  resetVoting();
-
-
-  /*
-    O código anterior da votação
-    não pode ser reutilizado.
-  */
-
-  accessCode = "";
-
-  accessCodeValidated = false;
-
-
-  /*
-    Volta para a tela inicial.
-  */
-
-  if (accessScreen) {
-
-    accessScreen.hidden = true;
-
-  }
-
-  if (app) {
-
-    app.hidden = true;
-
-  }
-
-  if (bootScreen) {
-
-    bootScreen.hidden = false;
-
-  }
+confirmDialog.close();
 
 }
 
+confirmBtn.disabled = false;
+
+cancelBtn.disabled = false;
+
+
+/*
+Limpa o estado da votação.
+*/
+
+resetVoting();
+
+
+/*
+O código anterior da votação
+não pode ser reutilizado.
+*/
+
+accessCode = "";
+
+accessCodeValidated = false;
+
+
+/*
+Volta para a tela inicial.
+*/
+
+if (accessScreen) {
+
+accessScreen.hidden = true;
+
+}
+
+if (app) {
+
+app.hidden = true;
+
+}
+
+if (bootScreen) {
+
+bootScreen.hidden = false;
+
+}
+
+}
 );
 
 }
+
 
 /* =========================
 BOTÃO CONFIGURAÇÕES
@@ -1336,19 +1406,19 @@ settingsBtn.addEventListener(
 "click",
 function () {
 
-  alert(
-    "Simulador de Votação\n\n" +
-    "Digite o número usando o teclado.\n" +
-    "CONFIRMA registra o voto.\n" +
-    "CORRIGE apaga o número.\n" +
-    "BRANCO permite votar em branco."
-  );
-
-}
-
+alert(
+"Simulador de Votação\n\n" +
+"Digite o número usando o teclado.\n" +
+"CONFIRMA registra o voto.\n" +
+"CORRIGE apaga o número.\n" +
+"BRANCO permite votar em branco."
 );
 
 }
+);
+
+}
+
 
 /* =========================
 LIMPA VERSÕES ANTIGAS
@@ -1363,59 +1433,67 @@ window.addEventListener(
 "load",
 function () {
 
-  navigator.serviceWorker
-    .getRegistrations()
-    .then(function (registrations) {
+navigator.serviceWorker
+.getRegistrations()
+.then(
+function (registrations) {
 
-      registrations.forEach(
-        function (registration) {
+registrations.forEach(
+function (registration) {
 
-          registration.unregister();
-
-        }
-      );
-
-    })
-    .catch(function (error) {
-
-      console.log(
-        "Não foi possível remover o Service Worker:",
-        error
-      );
-
-    });
+registration.unregister();
 
 }
+);
 
+}
+)
+.catch(
+function (error) {
+
+console.log(
+"Não foi possível remover o Service Worker:",
+error
+);
+
+}
+);
+
+}
 );
 
 }
 
+
 if ("caches" in window) {
 
 caches.keys()
-.then(function (cacheNames) {
+.then(
+function (cacheNames) {
 
-  return Promise.all(
-    cacheNames.map(
-      function (cacheName) {
+return Promise.all(
+cacheNames.map(
+function (cacheName) {
 
-        return caches.delete(
-          cacheName
-        );
+return caches.delete(
+cacheName
+);
 
-      }
-    )
-  );
+}
+)
+);
 
-})
-.catch(function (error) {
+}
+)
+.catch(
+function (error) {
 
-  console.log(
-    "Não foi possível limpar o cache:",
-    error
-  );
+console.log(
+"Não foi possível limpar o cache:",
+error
+);
 
-});
+}
+);
 
 }
