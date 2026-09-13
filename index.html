@@ -384,7 +384,19 @@
   </dialog>
 
 
-  <script src="app.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script>
+  const SUPABASE_URL = "https://xngltwuzdcmmnqzlvtqp.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY = "COLE_AQUI_A_CHAVE_QUE_VOCE_COPIOU";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+</script>
+
+<script src="app.js?v=5"></script>
 </body>
 </html>
