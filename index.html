@@ -50,7 +50,41 @@
 
   </section>
 
+<!-- TELA DE CÓDIGO DE ACESSO -->
+<section id="accessScreen" class="boot-screen" hidden>
 
+  <div class="boot-card">
+
+    <h1>Código de acesso</h1>
+
+    <p>
+      Digite o código fornecido para iniciar a votação.
+    </p>
+
+    <input
+      id="accessCodeInput"
+      type="text"
+      placeholder="Ex.: VOTO-0001"
+      autocomplete="off"
+      maxlength="50"
+    />
+
+    <button
+      id="accessCodeBtn"
+      class="primary-btn"
+      type="button"
+    >
+      Continuar
+    </button>
+
+    <p
+      id="accessCodeMessage"
+      class="vote-status"
+    ></p>
+
+  </div>
+
+</section>
   <!-- APLICAÇÃO PRINCIPAL -->
   <main
     id="app"
