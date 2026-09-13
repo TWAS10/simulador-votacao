@@ -1011,8 +1011,150 @@ CONFIRMAR VOTO
 async function confirmVote() {
 
 if (!confirmDialog.open) {
-
 return;
+}
+
+if (
+!accessCodeValidated ||
+!accessCode
+) {
+alert(
+  "Código de acesso não validado."
+);
+return;
+}
+
+const client =
+getSupabaseClient();
+
+if (!client) {
+alert(
+  "Erro de conexão com o sistema."
+);
+return;
+}
+
+const payload =
+getVotePayload();
+
+if (!payload) {
+alert(
+  "Tipo de voto inválido."
+);
+return;
+}
+
+confirmBtn.disabled = true;
+cancelBtn.disabled = true;
+
+voteStatus.textContent =
+"Registrando voto...";
+
+try {
+
+const {
+  data,
+  error
+} = await client.rpc(
+  "register_vote_with_access_code",
+  {
+    p_code:
+      accessCode,
+
+    p_candidate_number:
+      payload.candidate_number,
+
+    p_vote_type:
+      payload.vote_type
+  }
+);
+
+if (error) {
+
+  console.error(
+    "Erro ao registrar voto:",
+    error
+  );
+
+  throw error;
+}
+
+if (
+!data ||
+data.length === 0 ||
+data[0].success !== true
+) {
+
+  throw new Error(
+    "O sistema não confirmou o registro do voto."
+  );
+
+}
+
+console.log(
+  "Voto registrado com sucesso:",
+  data
+);
+
+confirmDialog.close();
+
+votingFinished = true;
+
+accessCodeValidated = false;
+
+accessCode = "";
+
+stageMessage.textContent =
+  "VOTO CONFIRMADO";
+
+candidateName.textContent =
+  "FIM";
+
+candidateNumber.textContent =
+  "✓";
+
+candidatePhoto.innerHTML = "";
+
+candidatePhoto.textContent =
+  "✓";
+
+voteStatus.textContent =
+  "Seu voto foi registrado no simulador.";
+
+footerMessage.textContent =
+  "Votação encerrada. Clique em Reiniciar para votar novamente.";
+
+enterBtn.disabled = true;
+
+blankBtn.disabled = true;
+
+clearBtn.disabled = true;
+
+if (keypad) {
+
+  const keys =
+    keypad.querySelectorAll("button");
+
+  keys.forEach(function (key) {
+    key.disabled = true;
+  });
+
+}
+
+} catch (error) {
+
+console.error(
+  "Erro ao finalizar votação:",
+  error
+);
+
+voteStatus.textContent =
+  "Não foi possível concluir a votação. Verifique o sistema antes de tentar novamente.";
+
+confirmBtn.disabled = false;
+cancelBtn.disabled = false;
+
+}
 
 }
 
