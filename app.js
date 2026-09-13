@@ -1,23 +1,86 @@
 const candidates = {
   "13": {
-    name: "Candidato 13",
-    party: "Partido da Esperança",
+    name: "Luiz Inácio Lula da Silva",
+    party: "PT",
     number: "13",
-    photo: "13"
+    photo: "fotos/13.jpg"
   },
 
   "22": {
-    name: "Candidato 22",
-    party: "Partido da Mudança",
+    name: "Flávio Bolsonaro",
+    party: "PL",
     number: "22",
-    photo: "22"
+    photo: "fotos/22.jpg"
   },
 
   "45": {
-    name: "Candidato 45",
-    party: "Partido do Futuro",
+    name: "Ronaldo Caiado",
+    party: "PSD",
     number: "45",
-    photo: "45"
+    photo: "fotos/45.jpg"
+  },
+
+  "29": {
+    name: "Rui Costa Pimenta",
+    party: "PCO",
+    number: "29",
+    photo: "fotos/29.jpg"
+  },
+
+  "80": {
+    name: "Samara Martins",
+    party: "UP",
+    number: "80",
+    photo: "fotos/SAMARA MARTINS.jpg"
+  },
+
+  "30": {
+    name: "Romeu Zema",
+    party: "Novo",
+    number: "30",
+    photo: "fotos/30.jpg"
+  },
+
+  "16": {
+    name: "Hertz Dias",
+    party: "PSTU",
+    number: "16",
+    photo: "fotos/16.jpg"
+  },
+
+  "21": {
+    name: "Edmilson Costa",
+    party: "PCB",
+    number: "21",
+    photo: "fotos/21.jpg"
+  },
+
+  "14": {
+    name: "Renan Santos",
+    party: "Missão",
+    number: "14",
+    photo: "fotos/14.jpg"
+  },
+
+  "35": {
+    name: "Wilson Grassi",
+    party: "Democrata",
+    number: "35",
+    photo: "fotos/35.jpg"
+  },
+
+  "27": {
+    name: "Clariana Barão",
+    party: "DC",
+    number: "27",
+    photo: "fotos/27.jpg"
+  },
+
+  "70": {
+    name: "Augusto Cury",
+    party: "Avante",
+    number: "70",
+    photo: "fotos/AUGUSTO CURY.jpg"
   }
 };
 
@@ -65,6 +128,52 @@ const settingsBtn = document.getElementById("settingsBtn");
 
 
 /* =========================
+   MOSTRAR FOTO DO CANDIDATO
+========================= */
+
+function showCandidatePhoto(photo, candidateNameText) {
+  candidatePhoto.innerHTML = "";
+
+  if (!photo) {
+    candidatePhoto.textContent = "?";
+    return;
+  }
+
+  const img = document.createElement("img");
+
+  /*
+    encodeURI permite que o caminho funcione mesmo
+    quando o nome do arquivo possui espaços.
+  */
+  img.src = encodeURI(photo);
+
+  img.alt = "Foto de " + candidateNameText;
+  img.title = candidateNameText;
+
+  /*
+    Faz a imagem ocupar exatamente o espaço
+    reservado para a fotografia.
+  */
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "cover";
+  img.style.objectPosition = "center";
+  img.style.display = "block";
+
+  /*
+    Se a foto não existir no GitHub,
+    mostra novamente o ponto de interrogação.
+  */
+  img.onerror = function() {
+    candidatePhoto.innerHTML = "";
+    candidatePhoto.textContent = "?";
+  };
+
+  candidatePhoto.appendChild(img);
+}
+
+
+/* =========================
    INICIAR VOTAÇÃO
 ========================= */
 
@@ -100,6 +209,7 @@ function resetVoting() {
   candidateNumber.textContent =
     "—";
 
+  candidatePhoto.innerHTML = "";
   candidatePhoto.textContent =
     "?";
 
@@ -112,6 +222,18 @@ function resetVoting() {
   enterBtn.disabled = false;
   blankBtn.disabled = false;
   clearBtn.disabled = false;
+
+  /*
+    Reativa também as teclas numéricas caso
+    a votação anterior tenha sido finalizada.
+  */
+  if (keypad) {
+    const keys = keypad.querySelectorAll("button");
+
+    keys.forEach(function(key) {
+      key.disabled = false;
+    });
+  }
 }
 
 
@@ -145,6 +267,7 @@ function typeNumber(number) {
   }
 
   voteType = "candidate";
+
   typedNumber += number;
 
   updateNumberDisplay();
@@ -170,6 +293,10 @@ function typeNumber(number) {
 function showCandidate() {
   selectedCandidate = candidates[typedNumber];
 
+  /*
+    Número não encontrado:
+    caracteriza voto nulo no simulador.
+  */
   if (!selectedCandidate) {
     voteType = "null";
 
@@ -182,6 +309,7 @@ function showCandidate() {
     candidateNumber.textContent =
       typedNumber;
 
+    candidatePhoto.innerHTML = "";
     candidatePhoto.textContent =
       "X";
 
@@ -205,8 +333,15 @@ function showCandidate() {
   candidateNumber.textContent =
     selectedCandidate.number;
 
-  candidatePhoto.textContent =
-    selectedCandidate.photo;
+  /*
+    AQUI ESTÁ A CORREÇÃO PRINCIPAL:
+    em vez de mostrar "13", "22", etc.,
+    o sistema agora cria uma imagem.
+  */
+  showCandidatePhoto(
+    selectedCandidate.photo,
+    selectedCandidate.name
+  );
 
   voteStatus.textContent =
     selectedCandidate.party;
@@ -240,6 +375,7 @@ function clearNumber() {
   candidateNumber.textContent =
     "—";
 
+  candidatePhoto.innerHTML = "";
   candidatePhoto.textContent =
     "?";
 
@@ -275,6 +411,7 @@ function voteBlank() {
   candidateNumber.textContent =
     "BRANCO";
 
+  candidatePhoto.innerHTML = "";
   candidatePhoto.textContent =
     "B";
 
@@ -310,6 +447,7 @@ function openConfirmation() {
       "VOTO EM BRANCO";
 
     confirmDialog.showModal();
+
     return;
   }
 
@@ -318,6 +456,7 @@ function openConfirmation() {
       "VOTO NULO — número " + typedNumber;
 
     confirmDialog.showModal();
+
     return;
   }
 
@@ -354,6 +493,7 @@ function confirmVote() {
   candidateNumber.textContent =
     "✓";
 
+  candidatePhoto.innerHTML = "";
   candidatePhoto.textContent =
     "✓";
 
@@ -478,7 +618,12 @@ if (settingsBtn) {
   });
 }
 
-/* LIMPA VERSÕES ANTIGAS DO SERVICE WORKER E DO CACHE */
+
+/* =========================
+   LIMPA VERSÕES ANTIGAS
+   DO SERVICE WORKER
+   E DO CACHE
+========================= */
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
@@ -489,10 +634,14 @@ if ("serviceWorker" in navigator) {
         });
       })
       .catch(function (error) {
-        console.log("Não foi possível remover o Service Worker:", error);
+        console.log(
+          "Não foi possível remover o Service Worker:",
+          error
+        );
       });
   });
 }
+
 
 if ("caches" in window) {
   caches.keys()
@@ -504,6 +653,9 @@ if ("caches" in window) {
       );
     })
     .catch(function (error) {
-      console.log("Não foi possível limpar o cache:", error);
+      console.log(
+        "Não foi possível limpar o cache:",
+        error
+      );
     });
 }
