@@ -71,6 +71,7 @@ content="width=device-width, initial-scale=1.0"
       font-size: 17px;
     }
 
+
     /* =========================
        RESUMO
     ========================= */
@@ -125,6 +126,7 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 900;
     }
 
+
     /* =========================
        APURAÇÃO
     ========================= */
@@ -147,12 +149,6 @@ content="width=device-width, initial-scale=1.0"
 
       font-size: 25px;
     }
-
-    /*
-      IMPORTANTE:
-      OS RESULTADOS FICAM
-      SEMPRE UM ABAIXO DO OUTRO
-    */
 
     #results {
       display: flex !important;
@@ -190,11 +186,6 @@ content="width=device-width, initial-scale=1.0"
 
       margin: 0;
     }
-
-    /*
-      INFORMAÇÕES DO CANDIDATO
-      FICAM ORGANIZADAS VERTICALMENTE
-    */
 
     .candidate-top {
       display: flex;
@@ -236,11 +227,6 @@ content="width=device-width, initial-scale=1.0"
       color: #64748b;
     }
 
-    /*
-      VOTOS E PERCENTUAL
-      FICAM NA MESMA LINHA
-    */
-
     .candidate-total {
       display: flex;
 
@@ -273,6 +259,7 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 700;
     }
 
+
     /* =========================
        BARRA DE VOTOS
     ========================= */
@@ -301,6 +288,7 @@ content="width=device-width, initial-scale=1.0"
       transition:
         width 0.5s ease;
     }
+
 
     /* =========================
        BRANCOS E NULOS
@@ -348,6 +336,7 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 900;
     }
 
+
     /* =========================
        STATUS
     ========================= */
@@ -385,6 +374,7 @@ content="width=device-width, initial-scale=1.0"
 
       text-align: center;
     }
+
 
     /* =========================
        CELULAR
@@ -576,13 +566,17 @@ content="width=device-width, initial-scale=1.0"
 
 
     /*
-      COLOQUE AQUI, LOCALMENTE,
-      A MESMA CHAVE PUBLICÁVEL
-      QUE JÁ ESTÁ NO index.html.
+      IMPORTANTE:
+
+      COLOQUE AQUI A MESMA CHAVE
+      PUBLICÁVEL QUE JÁ EXISTE
+      NO SEU index.html.
+
+      NÃO ENVIE A CHAVE PARA MIM.
     */
 
     const SUPABASE_PUBLISHABLE_KEY =
-      "COLE_AQUI_A_MESMA_CHAVE_PUBLICAVEL_DO_INDEX";
+      "sb_publishable_khRu_OxUxfJzYWDVj1oeEQ_Isa-6Z5u";
 
 
     const supabaseClient =
@@ -670,36 +664,30 @@ content="width=device-width, initial-scale=1.0"
         "totalVotes"
       );
 
-
     const validVotes =
       document.getElementById(
         "validVotes"
       );
-
 
     const candidateCount =
       document.getElementById(
         "candidateCount"
       );
 
-
     const blankVotes =
       document.getElementById(
         "blankVotes"
       );
-
 
     const nullVotes =
       document.getElementById(
         "nullVotes"
       );
 
-
     const results =
       document.getElementById(
         "results"
       );
-
 
     const status =
       document.getElementById(
@@ -722,9 +710,7 @@ content="width=device-width, initial-scale=1.0"
           data,
           error
         } = await supabaseClient
-
           .from("vote_results")
-
           .select(
             "candidate_number, vote_type, total"
           );
@@ -764,6 +750,7 @@ content="width=device-width, initial-scale=1.0"
 
           const amount =
             Number(row.total) || 0;
+
 
           total += amount;
 
@@ -828,18 +815,14 @@ content="width=device-width, initial-scale=1.0"
         totalVotes.textContent =
           total;
 
-
         validVotes.textContent =
           valid;
-
 
         candidateCount.textContent =
           candidateResults.length;
 
-
         blankVotes.textContent =
           blanks;
-
 
         nullVotes.textContent =
           nulls;
@@ -963,7 +946,8 @@ content="width=device-width, initial-scale=1.0"
               <div class="candidate-total">
 
                 <strong>
-                  ${item.total} voto${item.total === 1 ? "" : "s"}
+                  ${item.total}
+                  voto${item.total === 1 ? "" : "s"}
                 </strong>
 
                 <span>
@@ -987,7 +971,9 @@ content="width=device-width, initial-scale=1.0"
           `;
 
 
-          results.appendChild(card);
+          results.appendChild(
+            card
+          );
 
         }
       );
