@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitar acesso — Simulador de Votação TWAS10</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --navy-deep: #071d42;
+    --navy: #0b2a5c;
+    --navy-light: #14386f;
+    --white: #ffffff;
+    --paper: #f4f6fb;
+    --amber: #f5a623;
+    --amber-dark: #d98c0f;
+    --slate: #5b6b8c;
+    --slate-dark: #24314f;
+    --success: #1f8a55;
+    --success-bg: #e7f6ee;
+    --error: #c0392b;
+    --error-bg: #fbeae8;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--slate-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(245, 166, 35, 0.10), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(20, 56, 111, 0.6), transparent 45%),
+      linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-light) 100%);
+    background-attachment: fixed;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .eyebrow {
+    display: block;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .eyebrow strong {
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--white);
+    text-align: center;
+    font-size: clamp(28px, 5vw, 36px);
+    line-height: 1.15;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+
+  .lede {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 380px;
+    margin: 0 auto 32px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: 0 24px 60px rgba(4, 15, 40, 0.35);
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate-dark);
+    margin-bottom: 8px;
+  }
+
+  input[type="email"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 13px 14px;
+    border: 1.5px solid #d8deea;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--slate-dark);
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  input[type="email"]:focus {
+    border-color: var(--navy);
+    background: var(--white);
+  }
+
+  input[type="email"]::placeholder {
+    color: #9aa5bd;
+  }
+
+  .turnstile-wrap {
+    margin: 18px 0 4px;
+    display: flex;
+    justify-content: center;
+    min-height: 65px;
+  }
+
+  button.submit {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 10px;
+    background: var(--amber);
+    color: var(--navy-deep);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  button.submit:hover:not(:disabled) {
+    background: var(--amber-dark);
+  }
+
+  button.submit:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  button.submit:disabled {
+    background: #d9dee9;
+    color: #8a93ab;
+    cursor: not-allowed;
+  }
+
+  .status {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .status.show { display: block; }
+
+  .status.success {
+    background: var(--success-bg);
+    color: var(--success);
+  }
+
+  .status.error {
+    background: var(--error-bg);
+    color: var(--error);
+  }
+
+  .status.info {
+    background: var(--paper);
+    color: var(--slate);
+  }
+
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 24px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 13px;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: var(--white);
+    text-decoration: underline;
+  }
+
+  .fine-print {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <span class="eyebrow">Simulador de Votação <strong>TWAS10</strong></span>
+    <h1>Peça seu código de acesso</h1>
+    <p class="lede">
+      Informe seu e-mail e enviaremos um código de uso único.
+      Digite esse código na tela inicial do simulador para começar a votar.
+    </p>
+
+    <div class="card">
+      <form id="requestForm" novalidate>
+        <label for="email">Seu e-mail</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="nome@exemplo.com"
+          autocomplete="email"
+          required
+        >
+
+        <div class="turnstile-wrap">
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAE0m6LLmXkoM6nq0" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired"></div>
+        </div>
+
+        <button type="submit" class="submit" id="submitBtn" disabled>
+          Enviar código
+        </button>
+
+        <div class="status" id="status"></div>
+      </form>
+    </div>
+
+    <a class="back-link" href="https://twas10.github.io/simulador-votacao/">
+      Já tenho um código — ir para o simulador
+    </a>
+
+    <p class="fine-print">
+      Seu e-mail é usado apenas para o envio do código de acesso.<br>
+      Cada e-mail pode solicitar um novo código a cada 24 horas.
+    </p>
+  </div>
+
+<script>
+  // =========================================================
+  // CONFIGURAÇÃO — preencha com os dados do seu projeto Supabase
+  // (Project Settings → API, no painel do Supabase)
+  // =========================================================
+  const SUPABASE_URL = "https://xngltwuzdcmmnqzlvtqp.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZ2x0d3V6ZGNtbW5xemx2dHFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjIxNTcsImV4cCI6MjEwNDgzODE1N30.GENcls0jzwcEHvzLq3iTfP24f1WZJOq0Ozcois-pSZw";
+  // =========================================================
+
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById("requestForm");
+  const emailInput = document.getElementById("email");
+  const submitBtn = document.getElementById("submitBtn");
+  const statusEl = document.getElementById("status");
+
+  let turnstileToken = null;
+
+  window.onTurnstileSuccess = function (token) {
+    turnstileToken = token;
+    submitBtn.disabled = false;
+  };
+
+  window.onTurnstileExpired = function () {
+    turnstileToken = null;
+    submitBtn.disabled = true;
+  };
+
+  function showStatus(message, type) {
+    statusEl.textContent = message;
+    statusEl.className = "status show " + type;
+  }
+
+  function hideStatus() {
+    statusEl.className = "status";
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    hideStatus();
+
+    const email = emailInput.value.trim();
+
+    if (!isValidEmail(email)) {
+      showStatus("Digite um e-mail válido.", "error");
+      emailInput.focus();
+      return;
+    }
+
+    if (!turnstileToken) {
+      showStatus("Complete a verificação de segurança antes de continuar.", "error");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando...";
+    showStatus("Enviando seu código, aguarde...", "info");
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke("request-access", {
+        body: { email, turnstileToken },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.success !== true) {
+        throw new Error((data && data.error) || "Não foi possível enviar o código.");
+      }
+
+      showStatus(
+        "Código enviado! Verifique sua caixa de entrada (e a pasta de spam) nos próximos minutos.",
+        "success"
+      );
+
+      form.reset();
+      submitBtn.textContent = "Enviar código";
+
+      if (window.turnstile) {
+        window.turnstile.reset();
+      }
+      turnstileToken = null;
+
+    } catch (err) {
+      console.error("Erro ao solicitar código:", err);
+
+      const message =
+        (err && err.message) ||
+        "Não foi possível enviar o código. Tente novamente em instantes.";
+
+      showStatus(message, "error");
+      submitBtn.textContent = "Enviar código";
+      submitBtn.disabled = false;
+
+      if (window.turnstile) {
+        window.turnstile.reset();
+      }
+      turnstileToken = null;
+    }
+  });
+</script>
+
+</body>
+</html>
