@@ -146,13 +146,20 @@ img { max-width: 100%; display: block; }
 
 .eyebrow {
   display: inline-block;
-  color: rgba(255,255,255,0.75);
-  font-size: 14px;
-  letter-spacing: 0.02em;
-  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.eyebrow strong { color: var(--amber); font-weight: 600; }
+.eyebrow strong { color: var(--amber); font-weight: 700; }
 
 .hero h1 {
   color: var(--white);
